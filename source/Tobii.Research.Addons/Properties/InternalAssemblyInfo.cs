@@ -30,3 +30,4 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
+[assembly: InternalsVisibleTo("Tobii.Research.Unit.Test, PublicKey= 00240000048000009400000006020000002400005253413100040000010001004d16ca0a4853477aa6a1e542778fefea9b7c877656ef987d75673cde2e233b7c34ab6ee9745e9f8d15348a3ecfe599f8b97a0a4a4f843570bf2b8d222e609d271cad484a0958e04de5142ce39d7ef823c89d2b22edaceed3d02407c969692ab7e2247d99172279391afefff8c764de3199eea6a6cde6f33628a2398438ed33a4")]
