@@ -113,6 +113,28 @@ namespace Tobii.Research.Addons.Utility
             var dy = displayArea.BottomLeft.Sub(displayArea.TopLeft).Mul(point2D.Y);
             return displayArea.TopLeft.Add(dx.Add(dy));
         }
+
+        internal static double RootMeanSquare(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
+        {
+            if (queue.Count < 2)
+            {
+                throw new ArgumentException("Can't calculate RMS on queue of less than 2 items.");
+            }
+
+            var ret = 0.0;
+            var array = queue.ToArray();
+
+            for (int i = 0; i < array.Length - 1; i++)
+            {
+                var curr = selector(array[i]);
+                var next = selector(array[i + 1]);
+                var dirCurr = curr.GazeOrigin.PositionInUserCoordinates.NormalizedDirection(curr.GazePoint.PositionInUserCoordinates);
+                var dirNext = next.GazeOrigin.PositionInUserCoordinates.NormalizedDirection(next.GazePoint.PositionInUserCoordinates);
+                ret += Math.Pow(dirCurr.Angle(dirNext), 2);
+            }
+
+            return Math.Sqrt(ret / (array.Length - 1));
+        }
     }
 
     internal class TimeKeeper
