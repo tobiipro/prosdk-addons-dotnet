@@ -263,18 +263,27 @@ namespace Tobii.Research.Addons
             }
             else
             {
-                var avaragePrecisionLeftEye = points.Where(p => !p.TimedOut).Select(p => p.PrecisionLeftEye).DefaultIfEmpty().Average();
-                var avaragePrecisionRightEye = points.Where(p => !p.TimedOut).Select(p => p.PrecisionRightEye).DefaultIfEmpty().Average();
-                var avarageAccuracyLeftEye = points.Where(p => !p.TimedOut).Select(p => p.AccuracyLeftEye).DefaultIfEmpty().Average();
-                var avarageAccuracyRightEye = points.Where(p => !p.TimedOut).Select(p => p.AccuracyRightEye).DefaultIfEmpty().Average();
-                var averagePrecisionLeftEyeRMS = points.Where(p => !p.TimedOut).Select(p => p.PrecisionLeftEyeRMS).DefaultIfEmpty().Average();
-                var averagePrecisionRightEyeRMS = points.Where(p => !p.TimedOut).Select(p => p.PrecisionRightEyeRMS).DefaultIfEmpty().Average();
+                var validPoints = points.Where(p => !p.TimedOut);
 
-                _latestResult.UpdateResult(
-                    points,
-                    (avarageAccuracyLeftEye + avarageAccuracyRightEye) / 2.0f,
-                    (avaragePrecisionLeftEye + avaragePrecisionRightEye) / 2.0f,
-                    (averagePrecisionLeftEyeRMS + averagePrecisionRightEyeRMS) / 2.0f);
+                if (validPoints.Count() == 0)
+                {
+                    _latestResult.UpdateResult(points, 0, 0, 0);
+                }
+                else
+                {
+                    var avaragePrecisionLeftEye = validPoints.Select(p => p.PrecisionLeftEye).Average();
+                    var avaragePrecisionRightEye = validPoints.Select(p => p.PrecisionRightEye).Average();
+                    var avarageAccuracyLeftEye = validPoints.Select(p => p.AccuracyLeftEye).Average();
+                    var avarageAccuracyRightEye = validPoints.Select(p => p.AccuracyRightEye).Average();
+                    var averagePrecisionLeftEyeRMS = validPoints.Select(p => p.PrecisionLeftEyeRMS).Average();
+                    var averagePrecisionRightEyeRMS = validPoints.Select(p => p.PrecisionRightEyeRMS).Average();
+
+                    _latestResult.UpdateResult(
+                        points,
+                        (avarageAccuracyLeftEye + avarageAccuracyRightEye) / 2.0f,
+                        (avaragePrecisionLeftEye + avaragePrecisionRightEye) / 2.0f,
+                        (averagePrecisionLeftEyeRMS + averagePrecisionRightEyeRMS) / 2.0f);
+                }
             }
 
             return _latestResult;
