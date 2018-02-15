@@ -7,13 +7,13 @@ namespace Tobii.Research.Addons
 {
     public sealed class CalibrationValidationResult
     {
-        public List<CalibrationValidationPoint> Points { get; internal set; }
+        public List<CalibrationValidationPoint> Points { get; private set; }
 
-        public float AverageAccuracy { get; internal set; }
+        public float AverageAccuracy { get; private set; }
 
-        public float AveragePrecision { get; internal set; }
+        public float AveragePrecision { get; private set; }
 
-        public float AveragePrecisionRMS { get; internal set; }
+        public float AveragePrecisionRMS { get; private set; }
 
         public CalibrationValidationResult()
         {
@@ -80,6 +80,10 @@ namespace Tobii.Research.Addons
             {
                 if (_timeKeeper.TimedOut)
                 {
+                    // To avoid never timing out if we do not get any
+                    // data callbacks from the tracker, we need to check
+                    // if we have timed out here.
+                    // SaveDataForPoint changes state. 
                     SaveDataForPoint();
                 }
 
@@ -253,18 +257,25 @@ namespace Tobii.Research.Addons
                     samples.ToArray()));
             }
 
-            _latestResult.Points = points;
+            if (points.Count == 0)
+            {
+                _latestResult.UpdateResult(points, 0, 0, 0);
+            }
+            else
+            {
+                var avaragePrecisionLeftEye = points.Where(p => !p.TimedOut).Select(p => p.PrecisionLeftEye).DefaultIfEmpty().Average();
+                var avaragePrecisionRightEye = points.Where(p => !p.TimedOut).Select(p => p.PrecisionRightEye).DefaultIfEmpty().Average();
+                var avarageAccuracyLeftEye = points.Where(p => !p.TimedOut).Select(p => p.AccuracyLeftEye).DefaultIfEmpty().Average();
+                var avarageAccuracyRightEye = points.Where(p => !p.TimedOut).Select(p => p.AccuracyRightEye).DefaultIfEmpty().Average();
+                var averagePrecisionLeftEyeRMS = points.Where(p => !p.TimedOut).Select(p => p.PrecisionLeftEyeRMS).DefaultIfEmpty().Average();
+                var averagePrecisionRightEyeRMS = points.Where(p => !p.TimedOut).Select(p => p.PrecisionRightEyeRMS).DefaultIfEmpty().Average();
 
-            var avaragePrecisionLeftEye = _latestResult.Points.Select(p => p.PrecisionLeftEye).Average();
-            var avaragePrecisionRightEye = _latestResult.Points.Select(p => p.PrecisionRightEye).Average();
-            var avarageAccuracyLeftEye = _latestResult.Points.Select(p => p.AccuracyLeftEye).Average();
-            var avarageAccuracyRightEye = _latestResult.Points.Select(p => p.AccuracyRightEye).Average();
-            var averagePrecisionLeftEyeRMS = _latestResult.Points.Select(p => p.PrecisionLeftEyeRMS).Average();
-            var averagePrecisionRightEyeRMS = _latestResult.Points.Select(p => p.PrecisionRightEyeRMS).Average();
-
-            _latestResult.AveragePrecision = (avaragePrecisionLeftEye + avaragePrecisionRightEye) / 2.0f;
-            _latestResult.AverageAccuracy = (avarageAccuracyLeftEye + avarageAccuracyRightEye) / 2.0f;
-            _latestResult.AveragePrecisionRMS = (averagePrecisionLeftEyeRMS + averagePrecisionRightEyeRMS) / 2.0f;
+                _latestResult.UpdateResult(
+                    points,
+                    (avarageAccuracyLeftEye + avarageAccuracyRightEye) / 2.0f,
+                    (avaragePrecisionLeftEye + avaragePrecisionRightEye) / 2.0f,
+                    (averagePrecisionLeftEyeRMS + averagePrecisionRightEyeRMS) / 2.0f);
+            }
 
             return _latestResult;
         }
@@ -287,6 +298,8 @@ namespace Tobii.Research.Addons
 
                     if (_timeKeeper.TimedOut)
                     {
+                        // If timeout is detected in this callback thread, save data.
+                        // SaveDataForPoint changes state.
                         SaveDataForPoint();
                     }
                     else if (_data.Count < _sampleCount)
@@ -315,7 +328,7 @@ namespace Tobii.Research.Addons
         {
             lock (_lock)
             {
-                _dataMap.Add(new KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>(_currentPoint, _data));
+                _dataMap.Add(new KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>(_currentPoint, _data ?? new Queue<GazeDataEventArgs>()));
             }
 
             _data = null;
