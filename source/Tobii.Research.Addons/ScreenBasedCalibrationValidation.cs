@@ -158,16 +158,41 @@ namespace Tobii.Research.Addons
             State = ValidationState.Idle;
         }
 
-        public void StartCollectingData(NormalizedPoint2D coords)
+        public void StartCollectingData(NormalizedPoint2D calibrationPointCoordinates)
         {
             if (State == ValidationState.Collecting)
             {
                 throw new InvalidOperationException("Already in collecting data state");
             }
 
-            _currentPoint = coords;
+            _currentPoint = calibrationPointCoordinates;
             _timeKeeper.Restart();
             State = ValidationState.Collecting;
+        }
+
+        public void DiscardData(NormalizedPoint2D calibrationPointCoordinates)
+        {
+            if (State == ValidationState.Idle)
+            {
+                throw new InvalidOperationException("Not in validation mode. No points to discard.");
+            }
+
+            lock (_lock)
+            {
+                if (_dataMap == null)
+                {
+                    throw new ArgumentException("Attempt to discard non-collected point.");
+                }
+
+                var count = _dataMap.Count;
+
+                _dataMap = _dataMap.Where(kv => kv.Key != calibrationPointCoordinates).ToList();
+
+                if (count == _dataMap.Count)
+                {
+                    throw new ArgumentException("Attempt to discard non-collected point.");
+                }
+            }
         }
 
         public void EnterValidationMode()
