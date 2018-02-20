@@ -37,13 +37,13 @@ namespace Tobii.Research.Addons
 
         public float PrecisionLeftEye { get; private set; }
 
-        public float PrecisionLeftEyeRMS { get; private set; }
+        public float PrecisionRMSLeftEye { get; private set; }
 
         public float AccuracyRightEye { get; private set; }
 
         public float PrecisionRightEye { get; private set; }
 
-        public float PrecisionRightEyeRMS { get; private set; }
+        public float PrecisionRMSRightEye { get; private set; }
 
         public bool TimedOut { get; private set; }
 
@@ -55,8 +55,8 @@ namespace Tobii.Research.Addons
             float precisionLeftEye,
             float accuracyRightEye,
             float precisionRightEye,
-            float precisionLeftEyeRMS,
-            float precisionRightEyeRMS,
+            float precisionRMSLeftEye,
+            float precisionRMSRightEye,
             bool timedOut,
             GazeDataEventArgs[] gazeData)
         {
@@ -65,8 +65,8 @@ namespace Tobii.Research.Addons
             PrecisionLeftEye = precisionLeftEye;
             AccuracyRightEye = accuracyRightEye;
             PrecisionRightEye = precisionRightEye;
-            PrecisionLeftEyeRMS = precisionLeftEyeRMS;
-            PrecisionRightEyeRMS = precisionRightEyeRMS;
+            PrecisionRMSLeftEye = precisionRMSLeftEye;
+            PrecisionRMSRightEye = precisionRMSRightEye;
             TimedOut = timedOut;
             GazeData = gazeData;
         }
@@ -97,7 +97,6 @@ namespace Tobii.Research.Addons
             {
                 lock (_lock)
                 {
-
                     if (_state == ValidationState.CollectingData && _timeKeeper.TimedOut)
                     {
                         // To avoid never timing out if we do not get any
@@ -261,8 +260,8 @@ namespace Tobii.Research.Addons
 
                 var precisionLeftEye = varianceLeft > 0 ? Math.Sqrt(varianceLeft) : 0;
                 var precisionRightEye = varianceRight > 0 ? Math.Sqrt(varianceRight) : 0;
-                var precisionLeftEyeRMS = samples.RootMeanSquare(s => s.LeftEye);
-                var precisionRightEyeRMS = samples.RootMeanSquare(s => s.RightEye);
+                var precisionRMSLeftEye = samples.RootMeanSquare(s => s.LeftEye);
+                var precisionRMSRightEye = samples.RootMeanSquare(s => s.RightEye);
 
                 points.Add(new CalibrationValidationPoint(
                     targetPoint2D,
@@ -270,8 +269,8 @@ namespace Tobii.Research.Addons
                     (float)precisionLeftEye,
                     (float)accuracyRightEye,
                     (float)precisionRightEye,
-                    (float)precisionLeftEyeRMS,
-                    (float)precisionRightEyeRMS,
+                    (float)precisionRMSLeftEye,
+                    (float)precisionRMSRightEye,
                     false,
                     samples.ToArray()));
             }
@@ -294,14 +293,14 @@ namespace Tobii.Research.Addons
                     var avaragePrecisionRightEye = validPoints.Select(p => p.PrecisionRightEye).Average();
                     var avarageAccuracyLeftEye = validPoints.Select(p => p.AccuracyLeftEye).Average();
                     var avarageAccuracyRightEye = validPoints.Select(p => p.AccuracyRightEye).Average();
-                    var averagePrecisionLeftEyeRMS = validPoints.Select(p => p.PrecisionLeftEyeRMS).Average();
-                    var averagePrecisionRightEyeRMS = validPoints.Select(p => p.PrecisionRightEyeRMS).Average();
+                    var averagePrecisionRMSLeftEye = validPoints.Select(p => p.PrecisionRMSLeftEye).Average();
+                    var averagePrecisionRMSRightEye = validPoints.Select(p => p.PrecisionRMSRightEye).Average();
 
                     _latestResult.UpdateResult(
                         points,
                         (avarageAccuracyLeftEye + avarageAccuracyRightEye) / 2.0f,
                         (avaragePrecisionLeftEye + avaragePrecisionRightEye) / 2.0f,
-                        (averagePrecisionLeftEyeRMS + averagePrecisionRightEyeRMS) / 2.0f);
+                        (averagePrecisionRMSLeftEye + averagePrecisionRMSRightEye) / 2.0f);
                 }
             }
 
