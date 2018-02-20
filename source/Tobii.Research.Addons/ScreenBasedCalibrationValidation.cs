@@ -74,32 +74,14 @@ namespace Tobii.Research.Addons
 
     public class ScreenBasedCalibrationValidation
     {
-        public bool IsCollectingData
+        public enum ValidationState
         {
-            get
-            {
-                if (_timeKeeper.TimedOut)
-                {
-                    // To avoid never timing out if we do not get any
-                    // data callbacks from the tracker, we need to check
-                    // if we have timed out here.
-                    // SaveDataForPoint changes state. 
-                    SaveDataForPoint();
-                }
-
-                return State == ValidationState.Collecting;
-            }
-        }
-
-        private enum ValidationState
-        {
-            Idle,
-            NotCollecting,
-            Collecting,
+            NotInValidationMode,
+            NotCollectingData,
+            CollectingData,
         }
 
         private IEyeTracker _eyeTracker;
-        private int _sampleCount;
         private Queue<GazeDataEventArgs> _data;
         private List<KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>> _dataMap;
         private TimeKeeper _timeKeeper;
@@ -107,18 +89,29 @@ namespace Tobii.Research.Addons
         private NormalizedPoint2D _currentPoint;
         private readonly object _lock = new object();
         private ValidationState _state;
+        private int _sampleCount;
 
-        private ValidationState State
+        public ValidationState State
         {
             get
             {
                 lock (_lock)
                 {
+
+                    if (_state == ValidationState.CollectingData && _timeKeeper.TimedOut)
+                    {
+                        // To avoid never timing out if we do not get any
+                        // data callbacks from the tracker, we need to check
+                        // if we have timed out here.
+                        // SaveDataForPoint changes state. 
+                        SaveDataForPoint();
+                    }
+
                     return _state;
                 }
             }
 
-            set
+            private set
             {
                 lock (_lock)
                 {
@@ -155,24 +148,25 @@ namespace Tobii.Research.Addons
             _eyeTracker = eyeTracker;
             _sampleCount = sampleCount;
             _timeKeeper = new TimeKeeper(timeoutMS);
-            State = ValidationState.Idle;
+            State = ValidationState.NotInValidationMode;
+            _latestResult = new CalibrationValidationResult();
         }
 
         public void StartCollectingData(NormalizedPoint2D calibrationPointCoordinates)
         {
-            if (State == ValidationState.Collecting)
+            if (State == ValidationState.CollectingData)
             {
                 throw new InvalidOperationException("Already in collecting data state");
             }
 
             _currentPoint = calibrationPointCoordinates;
             _timeKeeper.Restart();
-            State = ValidationState.Collecting;
+            State = ValidationState.CollectingData;
         }
 
         public void DiscardData(NormalizedPoint2D calibrationPointCoordinates)
         {
-            if (State == ValidationState.Idle)
+            if (State == ValidationState.NotInValidationMode)
             {
                 throw new InvalidOperationException("Not in validation mode. No points to discard.");
             }
@@ -197,32 +191,32 @@ namespace Tobii.Research.Addons
 
         public void EnterValidationMode()
         {
-            if (State != ValidationState.Idle)
+            if (State != ValidationState.NotInValidationMode)
             {
                 throw new InvalidOperationException("Validation mode already entered");
             }
 
             _dataMap = new List<KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>>();
-            _latestResult = new CalibrationValidationResult();
-            State = ValidationState.NotCollecting;
+            _latestResult.UpdateResult(new List<CalibrationValidationPoint>(), -1, -1, -1);
+            State = ValidationState.NotCollectingData;
             _eyeTracker.GazeDataReceived += OnGazeDataReceived;
         }
 
         public void LeaveValidationMode()
         {
-            if (State == ValidationState.Idle)
+            if (State == ValidationState.NotInValidationMode)
             {
                 throw new InvalidOperationException("Not in validation mode");
             }
 
             _eyeTracker.GazeDataReceived -= OnGazeDataReceived;
             _currentPoint = null;
-            State = ValidationState.Idle;
+            State = ValidationState.NotInValidationMode;
         }
 
         public CalibrationValidationResult Compute()
         {
-            if (IsCollectingData)
+            if (State == ValidationState.CollectingData)
             {
                 throw new InvalidOperationException("Compute called while collecting data");
             }
@@ -318,13 +312,13 @@ namespace Tobii.Research.Addons
         {
             switch (State)
             {
-                case ValidationState.Idle:
+                case ValidationState.NotInValidationMode:
                     break;
 
-                case ValidationState.NotCollecting:
+                case ValidationState.NotCollectingData:
                     break;
 
-                case ValidationState.Collecting:
+                case ValidationState.CollectingData:
                     if (_data == null)
                     {
                         _data = new Queue<GazeDataEventArgs>();
@@ -333,8 +327,8 @@ namespace Tobii.Research.Addons
                     if (_timeKeeper.TimedOut)
                     {
                         // If timeout is detected in this callback thread, save data.
-                        // SaveDataForPoint changes state.
-                        SaveDataForPoint();
+                        // SaveDataForPointLocked changes state.
+                        SaveDataForPointLocked();
                     }
                     else if (_data.Count < _sampleCount)
                     {
@@ -344,10 +338,10 @@ namespace Tobii.Research.Addons
                             _data.Enqueue(e);
                         }
 
-                        // We have reached our count. SaveDataForPoint changes state.
+                        // We have reached our count. SaveDataForPointLocked changes state.
                         if (_data.Count >= _sampleCount)
                         {
-                            SaveDataForPoint();
+                            SaveDataForPointLocked();
                         }
                     }
 
@@ -358,15 +352,19 @@ namespace Tobii.Research.Addons
             }
         }
 
-        private void SaveDataForPoint()
+        private void SaveDataForPointLocked()
         {
             lock (_lock)
             {
-                _dataMap.Add(new KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>(_currentPoint, _data ?? new Queue<GazeDataEventArgs>()));
+                SaveDataForPoint();
             }
+        }
 
+        private void SaveDataForPoint()
+        {
+            _dataMap.Add(new KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>(_currentPoint, _data ?? new Queue<GazeDataEventArgs>()));
             _data = null;
-            State = ValidationState.NotCollecting;
+            _state = ValidationState.NotCollectingData;
         }
     }
 }

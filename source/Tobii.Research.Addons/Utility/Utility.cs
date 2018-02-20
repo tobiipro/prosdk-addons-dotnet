@@ -5,60 +5,60 @@ using System.Linq;
 
 namespace Tobii.Research.Addons.Utility
 {
-    internal static class Extensions
+    public static class Extensions
     {
-        internal static double Magnitude(float x, float y, float z)
+        public static double Magnitude(float x, float y, float z)
         {
             return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
         }
 
-        internal static double Magnitude(this Point3D vec)
+        public static double Magnitude(this Point3D vec)
         {
             return Magnitude(vec.X, vec.Y, vec.Z);
         }
 
-        internal static double Magnitude(float x, float y)
+        public static double Magnitude(float x, float y)
         {
             return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
         }
 
-        internal static double Magnitude(this NormalizedPoint2D vec)
+        public static double Magnitude(this NormalizedPoint2D vec)
         {
             return Magnitude(vec.X, vec.Y);
         }
 
-        internal static Point3D Add(this Point3D me, Point3D other)
+        public static Point3D Add(this Point3D me, Point3D other)
         {
             return new Point3D(me.X + other.X, me.Y + other.Y, me.Z + other.Z);
         }
 
-        internal static Point3D Sub(this Point3D me, Point3D other)
+        public static Point3D Sub(this Point3D me, Point3D other)
         {
             return new Point3D(me.X - other.X, me.Y - other.Y, me.Z - other.Z);
         }
 
-        internal static Point3D Mul(this Point3D me, double other)
+        public static Point3D Mul(this Point3D me, double other)
         {
             return new Point3D(me.X * (float)other, me.Y * (float)other, me.Z * (float)other);
         }
 
-        internal static Point3D Div(this Point3D me, double other)
+        public static Point3D Div(this Point3D me, double other)
         {
             return new Point3D(me.X / (float)other, me.Y / (float)other, me.Z / (float)other);
         }
 
-        internal static Point3D Normalize(this Point3D vec)
+        public static Point3D Normalize(this Point3D vec)
         {
             var mag = (float)Magnitude(vec.X, vec.Y, vec.Z);
             return new Point3D(vec.X / mag, vec.Y / mag, vec.Z / mag);
         }
 
-        internal static Point3D NormalizedDirection(this Point3D start, Point3D end)
+        public static Point3D NormalizedDirection(this Point3D start, Point3D end)
         {
             return Normalize(Direction(start, end));
         }
 
-        internal static Point3D Direction(this Point3D start, Point3D end)
+        public static Point3D Direction(this Point3D start, Point3D end)
         {
             var x = end.X - start.X;
             var y = end.Y - start.Y;
@@ -66,7 +66,7 @@ namespace Tobii.Research.Addons.Utility
             return new Point3D(x, y, z);
         }
 
-        internal static double DotProduct(this Point3D me, Point3D other)
+        public static double DotProduct(this Point3D me, Point3D other)
         {
             return me.X * other.X + me.Y * other.Y + me.Z * other.Z;
         }
@@ -78,7 +78,7 @@ namespace Tobii.Research.Addons.Utility
             return me;
         }
 
-        internal static double Angle(this Point3D me, Point3D other)
+        public static double Angle(this Point3D me, Point3D other)
         {
             return ((Math.Acos((me.DotProduct(other) / (me.Magnitude() * other.Magnitude())).Clamp()) * 180 / Math.PI) + 360) % 360;
         }
@@ -90,7 +90,7 @@ namespace Tobii.Research.Addons.Utility
             return Math.Atan2(y, x) * 180.0 / Math.PI;
         }
 
-        internal static Point3D Average(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, Point3D> selector)
+        public static Point3D Average(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, Point3D> selector)
         {
             var x = 0.0;
             var y = 0.0;
@@ -107,14 +107,14 @@ namespace Tobii.Research.Addons.Utility
             return new Point3D((float)(x / queue.Count), (float)(y / queue.Count), (float)(z / queue.Count));
         }
 
-        internal static Point3D NormalizedPoint2DToPoint3D(this NormalizedPoint2D point2D, DisplayArea displayArea)
+        public static Point3D NormalizedPoint2DToPoint3D(this NormalizedPoint2D point2D, DisplayArea displayArea)
         {
             var dx = displayArea.TopRight.Sub(displayArea.TopLeft).Mul(point2D.X);
             var dy = displayArea.BottomLeft.Sub(displayArea.TopLeft).Mul(point2D.Y);
             return displayArea.TopLeft.Add(dx.Add(dy));
         }
 
-        internal static double RootMeanSquare(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
+        public static double RootMeanSquare(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
         {
             if (queue.Count < 2)
             {
