@@ -114,7 +114,7 @@ namespace Tobii.Research.Addons.Utility
             return displayArea.TopLeft.Add(dx.Add(dy));
         }
 
-        public static double RootMeanSquare(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
+        public static double PrecisionRMS(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
         {
             if (queue.Count < 2)
             {

@@ -88,7 +88,7 @@ namespace Tobii.Research.Addons
         }
     }
 
-    public class ScreenBasedCalibrationValidation
+    public class ScreenBasedCalibrationValidation : IDisposable
     {
         public enum ValidationState
         {
@@ -276,8 +276,8 @@ namespace Tobii.Research.Addons
 
                 var precisionLeftEye = varianceLeft > 0 ? Math.Sqrt(varianceLeft) : 0;
                 var precisionRightEye = varianceRight > 0 ? Math.Sqrt(varianceRight) : 0;
-                var precisionRMSLeftEye = samples.RootMeanSquare(s => s.LeftEye);
-                var precisionRMSRightEye = samples.RootMeanSquare(s => s.RightEye);
+                var precisionRMSLeftEye = samples.PrecisionRMS(s => s.LeftEye);
+                var precisionRMSRightEye = samples.PrecisionRMS(s => s.RightEye);
 
                 points.Add(new CalibrationValidationPoint(
                     targetPoint2D,
@@ -383,6 +383,14 @@ namespace Tobii.Research.Addons
             _dataMap.Add(new KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>(_currentPoint, _data ?? new Queue<GazeDataEventArgs>()));
             _data = null;
             _state = ValidationState.NotCollectingData;
+        }
+
+        public void Dispose()
+        {
+            if (State != ValidationState.NotInValidationMode)
+            {
+                LeaveValidationMode();
+            }
         }
     }
 }
