@@ -1,63 +1,129 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace Tobii.Research.Addons.Utility
 {
+    /// <summary>
+    /// Extensions with some operations on <see cref="Point3D"/> and <see cref="NormalizedPoint2D"/> among other things.
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Get the length of the vector.
+        /// </summary>
+        /// <param name="x">The x parameter of the vector.</param>
+        /// <param name="y">The y parameter of the vector.</param>
+        /// <param name="z">The z parameter of the vector.</param>
+        /// <returns>The length (magnitude) of the vector.</returns>
         public static double Magnitude(float x, float y, float z)
         {
             return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
         }
 
-        public static double Magnitude(this Point3D vec)
+        /// <summary>
+        /// Get the length of the vector.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <returns>The length (magnitude) of the vector.</returns>
+        public static double Magnitude(this Point3D vector)
         {
-            return Magnitude(vec.X, vec.Y, vec.Z);
+            return Magnitude(vector.X, vector.Y, vector.Z);
         }
 
+        /// <summary>
+        /// Get the length of the vector.
+        /// </summary>
+        /// <param name="x">The x parameter of the vector.</param>
+        /// <param name="y">The y parameter of the vector.</param>
+        /// <returns>The length (magnitude) of the vector.</returns>
         public static double Magnitude(float x, float y)
         {
             return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
         }
 
-        public static double Magnitude(this NormalizedPoint2D vec)
+        /// <summary>
+        /// Get the length of the vector.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <returns>The length (magnitude) of the vector.</returns>
+        public static double Magnitude(this NormalizedPoint2D vector)
         {
-            return Magnitude(vec.X, vec.Y);
+            return Magnitude(vector.X, vector.Y);
         }
 
+        /// <summary>
+        /// Add another vector to this vector.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The other vector.</param>
+        /// <returns>A <see cref="Point3D"/> with the result of the addition.</returns>
         public static Point3D Add(this Point3D me, Point3D other)
         {
             return new Point3D(me.X + other.X, me.Y + other.Y, me.Z + other.Z);
         }
 
+        /// <summary>
+        /// Subtract another vector from this vector.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The other vector.</param>
+        /// <returns>A <see cref="Point3D"/> with the result of the subtraction.</returns>
         public static Point3D Sub(this Point3D me, Point3D other)
         {
             return new Point3D(me.X - other.X, me.Y - other.Y, me.Z - other.Z);
         }
 
+        /// <summary>
+        /// Multiply this vector by a scalar.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The scalar</param>
+        /// <returns>A <see cref="Point3D"/> with the result of the multiplication.</returns>
         public static Point3D Mul(this Point3D me, double other)
         {
             return new Point3D(me.X * (float)other, me.Y * (float)other, me.Z * (float)other);
         }
 
+        /// <summary>
+        /// Divide this vector by a scalar.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The scalar.</param>
+        /// <returns>A <see cref="Point3D"/> with the result of the division.</returns>
         public static Point3D Div(this Point3D me, double other)
         {
             return new Point3D(me.X / (float)other, me.Y / (float)other, me.Z / (float)other);
         }
 
-        public static Point3D Normalize(this Point3D vec)
+        /// <summary>
+        /// Get a vector in the same direction but with the length 1.
+        /// </summary>
+        /// <param name="vector">The vector to normalize.</param>
+        /// <returns>The normalized <see cref="Point3D"/> vector.</returns>
+        public static Point3D Normalize(this Point3D vector)
         {
-            var mag = (float)Magnitude(vec.X, vec.Y, vec.Z);
-            return new Point3D(vec.X / mag, vec.Y / mag, vec.Z / mag);
+            var mag = (float)Magnitude(vector.X, vector.Y, vector.Z);
+            return new Point3D(vector.X / mag, vector.Y / mag, vector.Z / mag);
         }
 
+        /// <summary>
+        /// Get the normalized direction from this point to another point.
+        /// </summary>
+        /// <param name="start">This point, the origin.</param>
+        /// <param name="end">The end point.</param>
+        /// <returns>A <see cref="Point3D"/> direction vector with the length 1.</returns>
         public static Point3D NormalizedDirection(this Point3D start, Point3D end)
         {
             return Normalize(Direction(start, end));
         }
 
+        /// <summary>
+        /// Get the direction from this point to another point.
+        /// </summary>
+        /// <param name="start">This point, the origin.</param>
+        /// <param name="end">The end point.</param>
+        /// <returns>A <see cref="Point3D"/> direction vector.</returns>
         public static Point3D Direction(this Point3D start, Point3D end)
         {
             var x = end.X - start.X;
@@ -66,11 +132,24 @@ namespace Tobii.Research.Addons.Utility
             return new Point3D(x, y, z);
         }
 
+        /// <summary>
+        /// Get the dot product between this vector and another vector.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The other vector.</param>
+        /// <returns>The dot product.</returns>
         public static double DotProduct(this Point3D me, Point3D other)
         {
             return me.X * other.X + me.Y * other.Y + me.Z * other.Z;
         }
 
+        /// <summary>
+        /// Clamp a value between two other values.
+        /// </summary>
+        /// <param name="me">The value to clamp.</param>
+        /// <param name="low">The minimum value. Default -1.</param>
+        /// <param name="high">The maximum value. Default 1.</param>
+        /// <returns>The value clamped between low and high.</returns>
         private static double Clamp(this double me, double low = -1d, double high = 1d)
         {
             me = Math.Min(high, me);
@@ -78,18 +157,24 @@ namespace Tobii.Research.Addons.Utility
             return me;
         }
 
+        /// <summary>
+        /// Get the angle in degrees between this vector and another vector.
+        /// </summary>
+        /// <param name="me">This vector.</param>
+        /// <param name="other">The other vector.</param>
+        /// <returns>The angle between the vectors in degrees.</returns>
         public static double Angle(this Point3D me, Point3D other)
         {
             return ((Math.Acos((me.DotProduct(other) / (me.Magnitude() * other.Magnitude())).Clamp()) * 180 / Math.PI) + 360) % 360;
         }
 
-        public static double MeanAngle(this double[] angles)
-        {
-            var x = angles.Sum(a => Math.Cos(a * Math.PI / 180)) / angles.Length;
-            var y = angles.Sum(a => Math.Sin(a * Math.PI / 180)) / angles.Length;
-            return Math.Atan2(y, x) * 180.0 / Math.PI;
-        }
-
+        /// <summary>
+        /// Get the average <see cref="Point3D"/> from a queue of <see cref="GazeDataEventArgs"/>.
+        /// The points to average is selected by the provided selector.
+        /// </summary>
+        /// <param name="queue">The queue of <see cref="GazeDataEventArgs"/></param>
+        /// <param name="selector">The point selector.</param>
+        /// <returns>The average <see cref="Point3D"/> point.</returns>
         public static Point3D Average(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, Point3D> selector)
         {
             var x = 0.0;
@@ -107,6 +192,12 @@ namespace Tobii.Research.Addons.Utility
             return new Point3D((float)(x / queue.Count), (float)(y / queue.Count), (float)(z / queue.Count));
         }
 
+        /// <summary>
+        /// Get the 3D gaze point representation based on the normalized 2D point and the <see cref="DisplayArea"/> information.
+        /// </summary>
+        /// <param name="point2D">The <see cref="NormalizedPoint2D"/> point.</param>
+        /// <param name="displayArea">The <see cref="DisplayArea"/> object.</param>
+        /// <returns>The <see cref="Point3D"/> gaze point.</returns>
         public static Point3D NormalizedPoint2DToPoint3D(this NormalizedPoint2D point2D, DisplayArea displayArea)
         {
             var dx = displayArea.TopRight.Sub(displayArea.TopLeft).Mul(point2D.X);
@@ -114,6 +205,13 @@ namespace Tobii.Research.Addons.Utility
             return displayArea.TopLeft.Add(dx.Add(dy));
         }
 
+        /// <summary>
+        /// Get the root mean square precision in degrees from a queue of <see cref="GazeDataEventArgs"/>.
+        /// The eye is selected by the provided selector.
+        /// </summary>
+        /// <param name="queue">The queue of <see cref="GazeDataEventArgs"/>.</param>
+        /// <param name="selector">The eye selector.</param>
+        /// <returns>The precision root mean square in degrees for the selected eye.</returns>
         public static double PrecisionRMS(this Queue<GazeDataEventArgs> queue, Func<GazeDataEventArgs, EyeData> selector)
         {
             if (queue.Count < 2)

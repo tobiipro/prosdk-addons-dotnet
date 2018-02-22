@@ -5,23 +5,50 @@ using Tobii.Research.Addons.Utility;
 
 namespace Tobii.Research.Addons
 {
+    /// <summary>
+    /// <see cref="CalibrationValidationResult"/> contains the average result of the
+    /// <see cref="ScreenBasedCalibrationValidation.Compute"/> operation and the list
+    /// of <see cref="CalibrationValidationPoint"/> points were collected for this
+    /// validation.
+    /// </summary>
     public sealed class CalibrationValidationResult
     {
+        /// <summary>
+        /// Get the list of <see cref="CalibrationValidationPoint"/> points collected for this validation.
+        /// </summary>
         public List<CalibrationValidationPoint> Points { get; private set; }
 
+        /// <summary>
+        /// Get the average accuracy in degrees for the left eye.
+        /// </summary>
         public float AverageAccuracyLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the average precision in degrees for the left eye.
+        /// </summary>
         public float AveragePrecisionLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the average root mean square precision in degrees for the left eye.
+        /// </summary>
         public float AveragePrecisionRMSLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the average accuracy in degrees for the right eye.
+        /// </summary>
         public float AverageAccuracyRightEye { get; private set; }
 
+        /// <summary>
+        /// Get the average precision in degrees for the right eye.
+        /// </summary>
         public float AveragePrecisionRightEye { get; private set; }
 
+        /// <summary>
+        /// Get the average root mean square precision in degrees for the right eye.
+        /// </summary>
         public float AveragePrecisionRMSRightEye { get; private set; }
 
-        public CalibrationValidationResult()
+        internal CalibrationValidationResult()
         {
             Points = new List<CalibrationValidationPoint>();
         }
@@ -45,27 +72,61 @@ namespace Tobii.Research.Addons
         }
     }
 
+    /// <summary>
+    /// The <see cref="CalibrationValidationPoint"/> represents a collected
+    /// point that goes into the calibration validation. It cointains
+    /// properties for the accuracy and precision for each eye as well as
+    /// the list of <see cref="GazeDataEventArgs"/> samples that were
+    /// collected for the point.
+    /// </summary>
     public sealed class CalibrationValidationPoint
     {
+        /// <summary>
+        /// Get the coordinates for this validation point.
+        /// </summary>
         public NormalizedPoint2D Coordinates { get; private set; }
 
+        /// <summary>
+        /// Get the accuracy in degrees for the left eye.
+        /// </summary>
         public float AccuracyLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the precision in degrees for the left eye.
+        /// </summary>
         public float PrecisionLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the root mean square precision in degrees for the left eye.
+        /// </summary>
         public float PrecisionRMSLeftEye { get; private set; }
 
+        /// <summary>
+        /// Get the accuracy in degrees for the right eye.
+        /// </summary>
         public float AccuracyRightEye { get; private set; }
 
+        /// <summary>
+        /// Get the precision in degrees for the right eye.
+        /// </summary>
         public float PrecisionRightEye { get; private set; }
 
+        /// <summary>
+        /// Get the root mean square precision in degrees for the right eye.
+        /// </summary>
         public float PrecisionRMSRightEye { get; private set; }
 
+        /// <summary>
+        /// Get a boolean indicating if there was a timeout while collecting data for this point.
+        /// </summary>
         public bool TimedOut { get; private set; }
 
+        /// <summary>
+        /// Get the <see cref="GazeDataEventArgs"/> samples collected for this point.
+        /// </summary>
         public GazeDataEventArgs[] GazeData { get; private set; }
 
-        public CalibrationValidationPoint(
+        internal CalibrationValidationPoint(
             NormalizedPoint2D coordinates,
             float accuracyLeftEye,
             float precisionLeftEye,
@@ -88,6 +149,9 @@ namespace Tobii.Research.Addons
         }
     }
 
+    /// <summary>
+    /// Provides methods and properties for managing calibration validation for screen based eye trackers.
+    /// </summary>
     public class ScreenBasedCalibrationValidation : IDisposable
     {
         public enum ValidationState
@@ -107,6 +171,12 @@ namespace Tobii.Research.Addons
         private ValidationState _state;
         private int _sampleCount;
 
+        /// <summary>
+        /// Get the current state of the validation object.
+        /// <see cref="ValidationState.NotInValidationMode"/> - <see cref="EnterValidationMode"/> must be called starting to collect data.
+        /// <see cref="ValidationState.NotCollectingData"/> - ready to start collecting data or computing result.
+        /// <see cref="ValidationState.CollectingData"/> - currently collecting data. Will finish after the sample count is reached or a timeout.
+        /// </summary>
         public ValidationState State
         {
             get
@@ -118,7 +188,7 @@ namespace Tobii.Research.Addons
                         // To avoid never timing out if we do not get any
                         // data callbacks from the tracker, we need to check
                         // if we have timed out here.
-                        // SaveDataForPoint changes state. 
+                        // SaveDataForPoint changes state.
                         SaveDataForPoint();
                     }
 
@@ -135,6 +205,10 @@ namespace Tobii.Research.Addons
             }
         }
 
+        /// <summary>
+        /// Get the current <see cref="CalibrationValidationResult"/> with the latest computed accuracy and precision.
+        /// <see cref="Compute"/> must have been called for this to contain valid data.
+        /// </summary>
         public CalibrationValidationResult Result
         {
             get
@@ -143,6 +217,12 @@ namespace Tobii.Research.Addons
             }
         }
 
+        /// <summary>
+        /// Create a calibration validation object for screen based eye trackers.
+        /// </summary>
+        /// <param name="eyeTracker">An <see cref="IEyeTracker"/> instance.</param>
+        /// <param name="sampleCount">The number of samples to collect. Default 30, minimum 10, maximum 3000.</param>
+        /// <param name="timeoutMS">Timeout in milliseconds. Default 1000, minimum 100, maximum 3000.</param>
         public ScreenBasedCalibrationValidation(IEyeTracker eyeTracker, int sampleCount = 30, int timeoutMS = 1000)
         {
             if (eyeTracker == null)
@@ -163,10 +243,15 @@ namespace Tobii.Research.Addons
             _eyeTracker = eyeTracker;
             _sampleCount = sampleCount;
             _timeKeeper = new TimeKeeper(timeoutMS);
-            State = ValidationState.NotInValidationMode;
             _latestResult = new CalibrationValidationResult();
+            State = ValidationState.NotInValidationMode;
         }
 
+        /// <summary>
+        /// Starts collecting data for a calibration validation point. The argument used is the point
+        /// user is assumed to be looking at and is given in the active display area coordinate system.
+        /// </summary>
+        /// <param name="calibrationPointCoordinates">The normalized 2D point on the display area</param>
         public void StartCollectingData(NormalizedPoint2D calibrationPointCoordinates)
         {
             if (State == ValidationState.CollectingData)
@@ -179,6 +264,10 @@ namespace Tobii.Research.Addons
             State = ValidationState.CollectingData;
         }
 
+        /// <summary>
+        /// Removes the collected data for a specific calibration validation point.
+        /// </summary>
+        /// <param name="calibrationPointCoordinates">The calibration point to remove.</param>
         public void DiscardData(NormalizedPoint2D calibrationPointCoordinates)
         {
             if (State == ValidationState.NotInValidationMode)
@@ -204,6 +293,9 @@ namespace Tobii.Research.Addons
             }
         }
 
+        /// <summary>
+        /// Enter the calibration validation mode and starts subscribing to gaze data from the eye tracker.
+        /// </summary>
         public void EnterValidationMode()
         {
             if (State != ValidationState.NotInValidationMode)
@@ -217,6 +309,9 @@ namespace Tobii.Research.Addons
             _eyeTracker.GazeDataReceived += OnGazeDataReceived;
         }
 
+        /// <summary>
+        /// Leave the calibration validation mode and unsubscribe from the eye tracker.
+        /// </summary>
         public void LeaveValidationMode()
         {
             if (State == ValidationState.NotInValidationMode)
@@ -229,6 +324,12 @@ namespace Tobii.Research.Addons
             State = ValidationState.NotInValidationMode;
         }
 
+        /// <summary>
+        /// Uses the collected data and tries to compute calibration validation parameters. If the calculation
+        /// is successful, the result is stored in the calibration result to the eye tracker. If there is insufficient
+        /// data to compute the validation the <see cref="CalibrationValidationResult"/> will contain invalid data.
+        /// </summary>
+        /// <returns>The latest <see cref="CalibrationValidationResult"/></returns>
         public CalibrationValidationResult Compute()
         {
             if (State == ValidationState.CollectingData)
@@ -385,6 +486,9 @@ namespace Tobii.Research.Addons
             _state = ValidationState.NotCollectingData;
         }
 
+        /// <summary>
+        /// Dispose will unsubscribe to gaze data and exit validation mode, if the object is not already in <see cref="ValidationState.NotInValidationMode"/>
+        /// </summary>
         public void Dispose()
         {
             if (State != ValidationState.NotInValidationMode)
