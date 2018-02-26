@@ -302,7 +302,7 @@ namespace Tobii.Research.Addons
             }
 
             _dataMap = new List<KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>>();
-            _latestResult.UpdateResult(new List<CalibrationValidationPoint>(), -1, -1, -1, -1, -1, -1);
+            _latestResult.UpdateResult(new List<CalibrationValidationPoint>(), float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
             State = ValidationState.NotCollectingData;
             _eyeTracker.GazeDataReceived += OnGazeDataReceived;
         }
