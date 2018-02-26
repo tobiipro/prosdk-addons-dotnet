@@ -14,37 +14,37 @@ namespace Tobii.Research.Addons
     public sealed class CalibrationValidationResult
     {
         /// <summary>
-        /// Get the list of <see cref="CalibrationValidationPoint"/> points collected for this validation.
+        /// The results of the calibration validation per point (same points as were collected).
         /// </summary>
         public List<CalibrationValidationPoint> Points { get; private set; }
 
         /// <summary>
-        /// Get the average accuracy in degrees for the left eye.
+        /// The accuracy in degrees averaged over all collected points for the left eye.
         /// </summary>
         public float AverageAccuracyLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the average precision in degrees for the left eye.
+        /// The precision (standard deviation) in degrees averaged over all collected points for the left eye.
         /// </summary>
         public float AveragePrecisionLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the average root mean square precision in degrees for the left eye.
+        /// The precision (root mean square of sample-to-sample error) in degrees averaged over all collected points for the left eye.
         /// </summary>
         public float AveragePrecisionRMSLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the average accuracy in degrees for the right eye.
+        /// The accuracy in degrees averaged over all collected points for the right eye.
         /// </summary>
         public float AverageAccuracyRightEye { get; private set; }
 
         /// <summary>
-        /// Get the average precision in degrees for the right eye.
+        /// The precision (standard deviation) in degrees averaged over all collected points for the right eye.
         /// </summary>
         public float AveragePrecisionRightEye { get; private set; }
 
         /// <summary>
-        /// Get the average root mean square precision in degrees for the right eye.
+        /// The precision (root mean square of sample-to-sample error) in degrees averaged over all collected points for the right eye.
         /// </summary>
         public float AveragePrecisionRMSRightEye { get; private set; }
 
@@ -82,47 +82,47 @@ namespace Tobii.Research.Addons
     public sealed class CalibrationValidationPoint
     {
         /// <summary>
-        /// Get the coordinates for this validation point.
+        /// The 2D coordinates of this point (in Active Display Coordinate System).
         /// </summary>
         public NormalizedPoint2D Coordinates { get; private set; }
 
         /// <summary>
-        /// Get the accuracy in degrees for the left eye.
+        /// The accuracy in degrees for the left eye.
         /// </summary>
         public float AccuracyLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the precision in degrees for the left eye.
+        /// The precision (standard deviation) in degrees for the left eye.
         /// </summary>
         public float PrecisionLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the root mean square precision in degrees for the left eye.
+        /// The precision (root mean square of sample-to-sample error) in degrees for the left eye.
         /// </summary>
         public float PrecisionRMSLeftEye { get; private set; }
 
         /// <summary>
-        /// Get the accuracy in degrees for the right eye.
+        /// The accuracy in degrees for the right eye.
         /// </summary>
         public float AccuracyRightEye { get; private set; }
 
         /// <summary>
-        /// Get the precision in degrees for the right eye.
+        /// The precision (standard deviation) in degrees for the right eye.
         /// </summary>
         public float PrecisionRightEye { get; private set; }
 
         /// <summary>
-        /// Get the root mean square precision in degrees for the right eye.
+        /// The precision (root mean square of sample-to-sample error) in degrees for the right eye.
         /// </summary>
         public float PrecisionRMSRightEye { get; private set; }
 
         /// <summary>
-        /// Get a boolean indicating if there was a timeout while collecting data for this point.
+        /// A boolean indicating if there was a timeout while collecting data for this point.
         /// </summary>
         public bool TimedOut { get; private set; }
 
         /// <summary>
-        /// Get the <see cref="GazeDataEventArgs"/> samples collected for this point.
+        /// The gaze data samples collected for this point. These samples are the base for the calculated accuracy and precision.
         /// </summary>
         public GazeDataEventArgs[] GazeData { get; private set; }
 
