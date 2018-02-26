@@ -6,10 +6,7 @@ using Tobii.Research.Addons.Utility;
 namespace Tobii.Research.Addons
 {
     /// <summary>
-    /// <see cref="CalibrationValidationResult"/> contains the average result of the
-    /// <see cref="ScreenBasedCalibrationValidation.Compute"/> operation and the list
-    /// of <see cref="CalibrationValidationPoint"/> points were collected for this
-    /// validation.
+    /// Contains the result of the calibration validation.
     /// </summary>
     public sealed class CalibrationValidationResult
     {
@@ -73,11 +70,9 @@ namespace Tobii.Research.Addons
     }
 
     /// <summary>
-    /// The <see cref="CalibrationValidationPoint"/> represents a collected
-    /// point that goes into the calibration validation. It cointains
-    /// properties for the accuracy and precision for each eye as well as
-    /// the list of <see cref="GazeDataEventArgs"/> samples that were
-    /// collected for the point.
+    /// Represents a collected point that goes into the calibration validation.
+    /// It contains calculated values for accuracy and precision as well as
+    /// the original gaze samples collected for the point.
     /// </summary>
     public sealed class CalibrationValidationPoint
     {
@@ -154,6 +149,11 @@ namespace Tobii.Research.Addons
     /// </summary>
     public class ScreenBasedCalibrationValidation : IDisposable
     {
+        /// <summary>
+        /// <see cref="ValidationState.NotInValidationMode"/> - <see cref="EnterValidationMode"/> must be called starting to collect data.
+        /// <see cref="ValidationState.NotCollectingData"/> - Ready to start collecting data or computing result.
+        /// <see cref="ValidationState.CollectingData"/> - Currently collecting data. Will finish after the sample count is reached or a timeout.
+        /// </summary>
         public enum ValidationState
         {
             NotInValidationMode,
@@ -173,9 +173,6 @@ namespace Tobii.Research.Addons
 
         /// <summary>
         /// Get the current state of the validation object.
-        /// <see cref="ValidationState.NotInValidationMode"/> - <see cref="EnterValidationMode"/> must be called starting to collect data.
-        /// <see cref="ValidationState.NotCollectingData"/> - ready to start collecting data or computing result.
-        /// <see cref="ValidationState.CollectingData"/> - currently collecting data. Will finish after the sample count is reached or a timeout.
         /// </summary>
         public ValidationState State
         {
@@ -248,8 +245,9 @@ namespace Tobii.Research.Addons
         }
 
         /// <summary>
-        /// Starts collecting data for a calibration validation point. The argument used is the point
-        /// user is assumed to be looking at and is given in the active display area coordinate system.
+        /// Starts collecting data for a calibration validation point.The argument used is the point the user
+        /// is assumed to be looking at and is given in the active display area coordinate system.
+        /// Please check State property to know when data collection is completed (or timed out).
         /// </summary>
         /// <param name="calibrationPointCoordinates">The normalized 2D point on the display area</param>
         public void StartCollectingData(NormalizedPoint2D calibrationPointCoordinates)
@@ -310,7 +308,7 @@ namespace Tobii.Research.Addons
         }
 
         /// <summary>
-        /// Leave the calibration validation mode and unsubscribe from the eye tracker.
+        /// Leaves the calibration validation mode, clears all collected data, and unsubscribes from the eye tracker.
         /// </summary>
         public void LeaveValidationMode()
         {
@@ -325,9 +323,12 @@ namespace Tobii.Research.Addons
         }
 
         /// <summary>
-        /// Uses the collected data and tries to compute calibration validation parameters. If the calculation
-        /// is successful, the result is stored in the calibration result to the eye tracker. If there is insufficient
-        /// data to compute the validation the <see cref="CalibrationValidationResult"/> will contain invalid data.
+        /// Uses the collected data and tries to compute accuracy and precision values for all points.
+        /// If the calculation is successful, the result is returned, and stored in the Result property
+        /// of the CalibrationValidation object. If there is insufficient data to compute the results
+        /// for a certain point that CalibrationValidationPoint will contain invalid data (NaN) for the
+        /// results. Gaze data will still be untouched. If there is no valid data for any point, the
+        /// average results of CalibrationValidationResult will be invalid (NaN) as well.
         /// </summary>
         /// <returns>The latest <see cref="CalibrationValidationResult"/></returns>
         public CalibrationValidationResult Compute()
@@ -350,7 +351,7 @@ namespace Tobii.Research.Addons
                 {
                     // We timed out before collecting enough valid samples.
                     // Set the timeout flag and continue.
-                    points.Add(new CalibrationValidationPoint(targetPoint2D, -1, -1, -1, -1, -1, -1, true, samples.ToArray()));
+                    points.Add(new CalibrationValidationPoint(targetPoint2D, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, true, samples.ToArray()));
                     continue;
                 }
 
@@ -394,7 +395,7 @@ namespace Tobii.Research.Addons
 
             if (points.Count == 0)
             {
-                _latestResult.UpdateResult(points, -1, -1, -1, -1, -1, -1);
+                _latestResult.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
             }
             else
             {
@@ -402,7 +403,7 @@ namespace Tobii.Research.Addons
 
                 if (validPoints.Count() == 0)
                 {
-                    _latestResult.UpdateResult(points, -1, -1, -1, -1, -1, -1);
+                    _latestResult.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
                 }
                 else
                 {
