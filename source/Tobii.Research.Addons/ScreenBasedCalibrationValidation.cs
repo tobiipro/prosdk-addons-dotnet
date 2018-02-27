@@ -67,6 +67,25 @@ namespace Tobii.Research.Addons
             AveragePrecisionRightEye = averagePrecisionRightEye;
             AveragePrecisionRMSRightEye = averagePrecisionRMSRightEye;
         }
+
+        public override string ToString()
+        {
+            return string.Format("" +
+                "AverageAccuracyLeftEye {0}, " +
+                "AveragePrecisionLeftEye {1}, " +
+                "AveragePrecisionRMSLeftEye {2}, " +
+                "AverageAccuracyRightEye {3}, " +
+                "AveragePrecisionRightEye {4}, " +
+                "AveragePrecisionRMSRightEye {5}, " +
+                "Point count {6}",
+                AverageAccuracyLeftEye,
+                AveragePrecisionLeftEye,
+                AveragePrecisionRMSLeftEye,
+                AverageAccuracyRightEye,
+                AveragePrecisionRightEye,
+                AveragePrecisionRMSRightEye,
+                Points.Count);
+        }
     }
 
     /// <summary>
@@ -125,9 +144,9 @@ namespace Tobii.Research.Addons
             NormalizedPoint2D coordinates,
             float accuracyLeftEye,
             float precisionLeftEye,
+            float precisionRMSLeftEye,
             float accuracyRightEye,
             float precisionRightEye,
-            float precisionRMSLeftEye,
             float precisionRMSRightEye,
             bool timedOut,
             GazeDataEventArgs[] gazeData)
@@ -141,6 +160,30 @@ namespace Tobii.Research.Addons
             PrecisionRMSRightEye = precisionRMSRightEye;
             TimedOut = timedOut;
             GazeData = gazeData;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("" +
+                "Coordinates ({0}, {1}), " +
+                "AccuracyLeftEye {2}, " +
+                "AccuracyRightEye {3}, " +
+                "PrecisionLeftEye {4}, " +
+                "PrecisionRightEye {5}, " +
+                "PrecisionRMSLeftEye {6}, " +
+                "PrecisionRMSRightEye {7}, " +
+                "Timed out {8}, " +
+                "Samples collected {9}",
+                Coordinates.X,
+                Coordinates.Y,
+                AccuracyLeftEye,
+                AccuracyRightEye,
+                PrecisionLeftEye,
+                PrecisionRightEye,
+                PrecisionRMSLeftEye,
+                PrecisionRMSRightEye,
+                TimedOut,
+                GazeData.Count());
         }
     }
 
@@ -385,9 +428,9 @@ namespace Tobii.Research.Addons
                     targetPoint2D,
                     (float)accuracyLeftEye,
                     (float)precisionLeftEye,
+                    (float)precisionRMSLeftEye,
                     (float)accuracyRightEye,
                     (float)precisionRightEye,
-                    (float)precisionRMSLeftEye,
                     (float)precisionRMSRightEye,
                     false,
                     samples.ToArray()));
@@ -496,6 +539,18 @@ namespace Tobii.Research.Addons
             {
                 LeaveValidationMode();
             }
+        }
+
+        public override string ToString()
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append(_latestResult.ToString()).AppendLine();
+            foreach (var p in _latestResult.Points)
+            {
+                sb.Append(p.ToString()).AppendLine();
+            }
+
+            return sb.ToString();
         }
     }
 }
