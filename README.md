@@ -5,6 +5,9 @@ Addons for the Tobii Pro SDK.
 
 [![Tobii Pro SDK](https://www.tobiipro.com/imagevault/publishedmedia/6rkt3jb83qlottsfh1ts/Tobii-Pro-SDK-with-VR-3_1-banner.jpg)](https://www.tobiipro.com/product-listing/tobii-pro-sdk/)
 
+[The Tobii Pro SDK can be found here.](https://www.tobiipro.com/product-listing/tobii-pro-sdk/ "Tobii Pro SDK")<br/>
+[The Tobii Pro SDK .Net documentation can be found here.](http://developer.tobiipro.com/dotnet.html "Tobii Pro SDK .Net documentation")
+
 As of this writing the addon contains functionality for calibration validation.
 Do not hesitate to contribute to this project and create issues if you find something that might be wrong or could be improved.
 ### Get the addon
@@ -29,11 +32,11 @@ using Tobii.Research.Addons;
 * Get a reference to your eye tracker. Here we assume that we have only one connected and get the first one found. Print the address to the console to verify that we got hold of it:
 ```csharp
 var eyeTracker = EyeTrackingOperations.FindAllEyeTrackers().FirstOrDefault();
+Console.WriteLine("Found eye tracker {0}", eyeTracker.Address);
 ```
 * Create a `ScreenBasedCalibrationValidation` object and provide the eye tracker reference as an argument:
 ```csharp
 var calibrationValidation = new ScreenBasedCalibrationValidation(eyeTracker);
-Console.WriteLine("Found eye tracker {0}", eyeTracker.Address);
 ```
 * The constructor also accepts arguments for the number of samples to collect for each point, default 30, and the timeout in milliseconds, default 1000.
 * Create the points to be used for validation:
@@ -50,7 +53,7 @@ var points = new NormalizedPoint2D[] {
 ```csharp
 calibrationValidation.EnterValidationMode();
 ```
-* Loop through the points and provide the to the validation object. For each point, wait for the data collection to finish. In a real application here is where the points would be displayed on the screen:
+* Loop through the points and provide them to the validation object. For each point, wait for the data collection to finish. In a real application here is where the points would be displayed on the screen:
 ```csharp
 foreach (var point in points)
 {
@@ -75,7 +78,7 @@ Console.WriteLine(calibrationValidation);
 ```csharp
 calibrationValidation.LeaveValidationMode();
 ```
-* All implementation details can be viewed in the [source code](https://github.com/tobiipro/prosdk-addons-dotnet/blob/master/source/Tobii.Research.Addons/ScreenBasedCalibrationValidation.cs)
+* All implementation details for the **ScreenBasedCalibrationValidation** class can be viewed in the [source code](https://github.com/tobiipro/prosdk-addons-dotnet/blob/master/source/Tobii.Research.Addons/ScreenBasedCalibrationValidation.cs).
 * Here is the entire example at once:
 ```csharp
 using System;
