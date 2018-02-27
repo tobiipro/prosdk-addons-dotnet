@@ -53,7 +53,7 @@ var points = new NormalizedPoint2D[] {
 ```csharp
 calibrationValidation.EnterValidationMode();
 ```
-* Loop through the points and provide the to the validation object. For each point, wait for the data collection to finish. In a real application here is where the points would be displayed on the screen:
+* Loop through the points and provide them to the validation object. For each point, wait for the data collection to finish. In a real application here is where the points would be displayed on the screen:
 ```csharp
 foreach (var point in points)
 {
@@ -78,7 +78,7 @@ Console.WriteLine(calibrationValidation);
 ```csharp
 calibrationValidation.LeaveValidationMode();
 ```
-* All implementation details can be viewed in the [source code](https://github.com/tobiipro/prosdk-addons-dotnet/blob/master/source/Tobii.Research.Addons/ScreenBasedCalibrationValidation.cs)
+* All implementation details for the **ScreenBasedCalibrationValidation** class can be viewed in the [source code](https://github.com/tobiipro/prosdk-addons-dotnet/blob/master/source/Tobii.Research.Addons/ScreenBasedCalibrationValidation.cs).
 * Here is the entire example at once:
 ```csharp
 using System;
