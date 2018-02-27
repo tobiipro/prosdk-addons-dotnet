@@ -208,7 +208,7 @@ namespace Tobii.Research.Addons
         private Queue<GazeDataEventArgs> _data;
         private List<KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>> _dataMap;
         private TimeKeeper _timeKeeper;
-        private CalibrationValidationResult _latestResult;
+        private CalibrationValidationResult _result;
         private NormalizedPoint2D _currentPoint;
         private readonly object _lock = new object();
         private ValidationState _state;
@@ -246,14 +246,14 @@ namespace Tobii.Research.Addons
         }
 
         /// <summary>
-        /// Get the current <see cref="CalibrationValidationResult"/> with the latest computed accuracy and precision.
+        /// Get the current <see cref="CalibrationValidationResult"/> with the computed accuracy and precision.
         /// <see cref="Compute"/> must have been called for this to contain valid data.
         /// </summary>
         public CalibrationValidationResult Result
         {
             get
             {
-                return _latestResult;
+                return _result;
             }
         }
 
@@ -283,7 +283,7 @@ namespace Tobii.Research.Addons
             _eyeTracker = eyeTracker;
             _sampleCount = sampleCount;
             _timeKeeper = new TimeKeeper(timeoutMS);
-            _latestResult = new CalibrationValidationResult();
+            _result = new CalibrationValidationResult();
             State = ValidationState.NotInValidationMode;
         }
 
@@ -345,7 +345,7 @@ namespace Tobii.Research.Addons
             }
 
             _dataMap = new List<KeyValuePair<NormalizedPoint2D, Queue<GazeDataEventArgs>>>();
-            _latestResult.UpdateResult(new List<CalibrationValidationPoint>(), float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
+            _result.UpdateResult(new List<CalibrationValidationPoint>(), float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
             State = ValidationState.NotCollectingData;
             _eyeTracker.GazeDataReceived += OnGazeDataReceived;
         }
@@ -373,7 +373,7 @@ namespace Tobii.Research.Addons
         /// results. Gaze data will still be untouched. If there is no valid data for any point, the
         /// average results of CalibrationValidationResult will be invalid (NaN) as well.
         /// </summary>
-        /// <returns>The latest <see cref="CalibrationValidationResult"/></returns>
+        /// <returns>The <see cref="CalibrationValidationResult"/></returns>
         public CalibrationValidationResult Compute()
         {
             if (State == ValidationState.CollectingData)
@@ -438,7 +438,7 @@ namespace Tobii.Research.Addons
 
             if (points.Count == 0)
             {
-                _latestResult.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
+                _result.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
             }
             else
             {
@@ -446,7 +446,7 @@ namespace Tobii.Research.Addons
 
                 if (validPoints.Count() == 0)
                 {
-                    _latestResult.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
+                    _result.UpdateResult(points, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
                 }
                 else
                 {
@@ -457,7 +457,7 @@ namespace Tobii.Research.Addons
                     var averagePrecisionRMSLeftEye = validPoints.Select(p => p.PrecisionRMSLeftEye).Average();
                     var averagePrecisionRMSRightEye = validPoints.Select(p => p.PrecisionRMSRightEye).Average();
 
-                    _latestResult.UpdateResult(
+                    _result.UpdateResult(
                         points,
                         averageAccuracyLeftEye,
                         averagePrecisionLeftEye,
@@ -468,7 +468,7 @@ namespace Tobii.Research.Addons
                 }
             }
 
-            return _latestResult;
+            return _result;
         }
 
         private void OnGazeDataReceived(object sender, GazeDataEventArgs e)
@@ -544,8 +544,8 @@ namespace Tobii.Research.Addons
         public override string ToString()
         {
             var sb = new System.Text.StringBuilder();
-            sb.Append(_latestResult.ToString()).AppendLine();
-            foreach (var p in _latestResult.Points)
+            sb.Append(_result.ToString()).AppendLine();
+            foreach (var p in _result.Points)
             {
                 sb.Append(p.ToString()).AppendLine();
             }
