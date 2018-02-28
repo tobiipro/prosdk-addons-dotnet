@@ -20,7 +20,7 @@ git clone https://github.com/tobiipro/prosdk-addons-dotnet.git
 * Add the Tobii Pro SDK to the project via NuGet. For this example we use the 32 bit version **Tobii.Research.x86**.
 * Build the addons assembly. In this example we build the debug version. It ends up in `\source\Tobii.Research.Addons\bin\Debug\Tobii.Research.Addons.dll`.
 ### Usage example
-The following is an example test application that makes use of the calibration validation implementation in the addons library. **Note:** this example does not display any points to peform a proper calibration validation, it only shows how to use the addons library.
+The following is an example test application that makes use of the calibration validation implementation in the addons library. **Note:** this example does not display any points to perform a proper calibration validation, it only shows how to use the addons library.
 * In Visual Studio, create a `Console App (.Net Framework)` for Visual C#.
 * Add the Tobii Pro SDK to the project via NuGet. For this example we use the 32 bit version **Tobii.Research.x86**.
 * Add a reference to the **Tobii.Research.Addons.dll**, for example from the ***Building*** section above.
