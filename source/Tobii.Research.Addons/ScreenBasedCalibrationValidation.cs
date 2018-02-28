@@ -47,7 +47,7 @@ namespace Tobii.Research.Addons
 
         internal CalibrationValidationResult()
         {
-            Points = new List<CalibrationValidationPoint>();
+            UpdateResult(new List<CalibrationValidationPoint>(), float.NaN, float.NaN, float.NaN, float.NaN, float.NaN, float.NaN);
         }
 
         internal void UpdateResult(
