@@ -419,8 +419,8 @@ namespace Tobii.Research.Addons
                     .RightEye.GazeOrigin.PositionInUserCoordinates.NormalizedDirection(s.RightEye.GazePoint.PositionInUserCoordinates)
                     .Angle(s.RightEye.GazeOrigin.PositionInUserCoordinates.NormalizedDirection(gazePointAverageRight)), 2)).Average();
 
-                var precisionLeftEye = varianceLeft > 0 ? Math.Sqrt(varianceLeft) : 0;
-                var precisionRightEye = varianceRight > 0 ? Math.Sqrt(varianceRight) : 0;
+                var precisionLeftEye = Math.Sqrt(varianceLeft);
+                var precisionRightEye = Math.Sqrt(varianceRight);
                 var precisionRMSLeftEye = samples.PrecisionRMS(s => s.LeftEye);
                 var precisionRMSRightEye = samples.PrecisionRMS(s => s.RightEye);
 
