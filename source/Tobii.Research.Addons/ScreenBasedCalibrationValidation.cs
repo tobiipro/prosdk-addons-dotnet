@@ -388,7 +388,7 @@ namespace Tobii.Research.Addons
                 var targetPoint2D = kv.Key;
                 var samples = kv.Value;
 
-                var targetPoint3D = targetPoint2D.NormalizedPoint2DToPoint3D(_eyeTracker.GetDisplayArea());
+                var targetPoint3D = _eyeTracker.GetDisplayArea().NormalizedPoint2DToPoint3D(targetPoint2D);
 
                 if (samples.Count < _sampleCount)
                 {

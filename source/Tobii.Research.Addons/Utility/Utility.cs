@@ -195,10 +195,10 @@ namespace Tobii.Research.Addons.Utility
         /// <summary>
         /// Get the 3D gaze point representation based on the normalized 2D point and the <see cref="DisplayArea"/> information.
         /// </summary>
-        /// <param name="point2D">The <see cref="NormalizedPoint2D"/> point.</param>
         /// <param name="displayArea">The <see cref="DisplayArea"/> object.</param>
+        /// <param name="point2D">The <see cref="NormalizedPoint2D"/> point.</param>
         /// <returns>The <see cref="Point3D"/> gaze point.</returns>
-        public static Point3D NormalizedPoint2DToPoint3D(this NormalizedPoint2D point2D, DisplayArea displayArea)
+        public static Point3D NormalizedPoint2DToPoint3D(this DisplayArea displayArea, NormalizedPoint2D point2D)
         {
             var dx = displayArea.TopRight.Sub(displayArea.TopLeft).Mul(point2D.X);
             var dy = displayArea.BottomLeft.Sub(displayArea.TopLeft).Mul(point2D.Y);
