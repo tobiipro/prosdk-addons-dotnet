@@ -140,7 +140,7 @@ namespace Tobii.Research.Addons.Utility
         /// <returns>The dot product.</returns>
         public static double DotProduct(this Point3D me, Point3D other)
         {
-            return me.X * other.X + me.Y * other.Y + me.Z * other.Z;
+            return (double)me.X * (double)other.X + (double)me.Y * (double)other.Y + (double)me.Z * (double)other.Z;
         }
 
         /// <summary>
